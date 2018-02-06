@@ -1,14 +1,15 @@
-import pickle
+import pickle, logging
 newsList=[]
 
 def getNews(bot, update):
+    logging.warning('getnews')
     getnews='Die aktuellen News der Heidelbohnen sind:\n'
     for num,news in enumerate(newsList, start=1):
         getnews=getnews+str(num)+": "+news+'\n'
     bot.sendMessage(chat_id=update.message.chat_id, text=getnews)
-    
 
 def addNews(bot, update, args):
+    logging.warning('addNews')
     if not args:
         bot.sendMessage(chat_id=update.message.chat_id, text='Leere News sind nicht erlaubt.') 
     else:
@@ -16,8 +17,11 @@ def addNews(bot, update, args):
         for arg in args:
             string=string+' '+arg    
         newsList.append(string)
-        bot.sendMessage(chat_id=update.message.chat_id, text='News hinzugefuegt.')
-    
+        try:
+            bot.sendMessage(chat_id=update.message.chat_id, text='News hinzugefuegt.')
+        except TelegramError:
+            bot.sendMessage(chat_id=update.message.chat_id, text='News hinzugefuegt..')
+            
 def removeNews(bot, update, args):
     try:
         args.sort(key=int, reverse=True)
@@ -36,7 +40,7 @@ def removeAllNews(bot, update):
 def dumpNews(bot, update):
     with open('newsfile.pickle', 'wb') as fp:
         pickle.dump(newsList, fp)
-        bot.sendMessage(chat_id=update.message.chat_id, text='News in Datei abgelegt.')
+    bot.sendMessage(chat_id=update.message.chat_id, text='News in Datei abgelegt.')
 
 def loadNews(bot, update):
     with open ('newsfile.pickle', 'rb') as fp:
